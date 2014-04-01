@@ -1,6 +1,10 @@
+# OS X cruft
 .DS_Store
 
 # Emacs cruft
 *~
 [#]*[#]
 .\#*
+
+# Python cruft
+*.pyc

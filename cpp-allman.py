@@ -18,13 +18,21 @@ at once.  That would be way cooler, and then we could apply this script
 efficiently.
 """
 
+"""
 print("Enter C++ file:", end=" ")
 
 cpp_file = input()
 
 cpp_abs_path = os.path.abspath(cpp_file)
 
-cpp_path, cpp_file_name = os.path.split(cpp_abs_path)
+cpp_path, cpp_filename = os.path.split(cpp_abs_path)
+"""
 
 def test_path_operations():
-    
+    test_path = "/foo/bar"
+    test_filename = "baz.cpp"
+    path_and_filename = os.path.join(test_path, test_filename)
+    cpp_path, cpp_filename = os.path.split(path_and_filename)
+
+    assert test_path == cpp_path
+    assert test_filename == cpp_filename
