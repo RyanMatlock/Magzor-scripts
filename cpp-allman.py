@@ -76,10 +76,10 @@ opening_brace = re.compile(r"^\s(?P<code>.+)(?P<brace_etc>\{.*)$")
 with open(cpp_abs_path) as cpp:
     with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." + cpp_ext),
               "w") as new_cpp:
-        line_no = 1
+        #line_no = 1
         for line in cpp:
-            print("line {}: {!r}".format(line_no, line))
-            line_no += 1
+            #print("line {}: {!r}".format(line_no, line))
+            #line_no += 1
             indentation_level = 0
             state = INDENT
             for element in line:
@@ -92,11 +92,14 @@ with open(cpp_abs_path) as cpp:
             opening_brace_match = opening_brace.match(line)
             if opening_brace_match is not None:
                 new_line += opening_brace_match.group("code")
+                # next lines just add the brace and technically create two
+                # lines
                 new_line += "\n"
                 new_line += TAB_REPLACEMENT * indentation_level
                 new_line += opening_brace_match.group("brace_etc")
-            #new_line = TAB_REPLACEMENT * indentation_level + \
-            #              line[indentation_level:]
+                new_line += "\n"
+            else:
+                new_line += line[indentation_level:]
             new_cpp.write(new_line)
 cpp.close()
 new_cpp.close()
