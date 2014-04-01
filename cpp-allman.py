@@ -28,6 +28,9 @@ cpp_abs_path = os.path.abspath(cpp_file)
 cpp_path, cpp_filename = os.path.split(cpp_abs_path)
 """
 
+def test_command_line_operations():
+    pass
+
 def test_path_operations():
     test_path = "/foo/bar"
     test_filename = "baz.cpp"
@@ -36,3 +39,22 @@ def test_path_operations():
 
     assert test_path == cpp_path
     assert test_filename == cpp_filename
+
+
+
+if len(sys.argv) != 2:
+    print ("Program not that advanced yet.  Sorry!")
+
+
+cpp_file = sys.argv[1]
+
+cpp_abs_path = os.path.abspath(cpp_file)
+cpp_path, cpp_filename = os.path.split(cpp_abs_path)
+
+"""
+print(sys.argv[1])
+print(cpp_abs_path)
+print(cpp_path)
+print(cpp_filename)
+"""
+
