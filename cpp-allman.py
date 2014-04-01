@@ -81,7 +81,7 @@ with open(cpp_abs_path) as cpp:
                 else:
                     state = CODE
             new_cpp.write(TAB_REPLACEMENT * indentation_level +
-                          line[indentation_level-1:]
+                          line[indentation_level:]
 )
 cpp.close()
 new_cpp.close()
