@@ -89,6 +89,7 @@ with open(cpp_abs_path) as cpp:
                     state = CODE
             new_line = TAB_REPLACEMENT * indentation_level
 
+            """
             opening_brace_match = opening_brace.match(line)
             if opening_brace_match is not None:
                 new_line += opening_brace_match.group("code")
@@ -100,6 +101,10 @@ with open(cpp_abs_path) as cpp:
                 new_line += "\n"
             else:
                 new_line += line[indentation_level:]
+            """
+
+            new_line += line[indentation_level:]
+            
             new_cpp.write(new_line)
 cpp.close()
 new_cpp.close()

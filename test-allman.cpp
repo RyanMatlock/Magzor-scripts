@@ -70,8 +70,7 @@ pthread_mutex_t I2C_Adapter_RPI::rwMutex = PTHREAD_MUTEX_INITIALIZER;
 bool I2C_Adapter_RPI::debug_mode = true;
 
 I2C_Adapter_RPI::I2C_Adapter_RPI(){
-    for (int i = 0; i < 128; i++) 
-    {
+    for (int i = 0; i < 128; i++) {
         fd[i] = -1;
     }	
 }
@@ -80,8 +79,7 @@ I2C_Adapter_RPI* I2C_Adapter_RPI::getInstance(){
     
     pthread_mutex_lock(&smMutex);	//Get lock on getInstance mutex
     
-    if (smInstance == NULL)
-    {
+    if (smInstance == NULL){
         
         smInstance = new I2C_Adapter_RPI();
     }
@@ -96,8 +94,7 @@ void I2C_Adapter_RPI::setDebug(bool b){
 }
 
 bool I2C_Adapter_RPI::attach_fd(uint8_t addr){
-    if((0 <= addr) & (addr < 128))
-    {
+    if((0 <= addr) & (addr < 128)){
         
         pthread_mutex_lock(&aMutex);			//Lock mutex for address acquire
         
@@ -105,27 +102,21 @@ bool I2C_Adapter_RPI::attach_fd(uint8_t addr){
         
         pthread_mutex_unlock(&aMutex);			//Unlock mutex for address acquire
         
-        	if(fd[addr] == -1)
-        {
-            		if(debug_mode)
-            {
+        if(fd[addr] == -1){
+            if(debug_mode){
                 printf("Couldn't get device %u fd.\n", addr);
             }
             return true;
         }
-        	else
-        {
-            		if(debug_mode)
-            {
+        else{
+            if(debug_mode){
                 printf("Got device %u fd.\n", addr);
             }
             return false;
         }
     }	
-    else
-    {
-        	if(debug_mode)
-        {
+    else{
+        if(debug_mode){
             printf("Address %u is out of I2C range.\n", addr);
         }
         return false;
@@ -140,8 +131,7 @@ void I2C_Adapter_RPI::checksum(unsigned char *d, uint8_t length, unsigned char *
    unsigned int temp;
 
    for (count = 0; count < length; ++count)
-  
-{
+   {
      temp = (*d++ ^ (crc >> 8)) & 0xff;
      crc = crc_table[temp] ^ (crc << 8);
    }
@@ -166,16 +156,13 @@ int I2C_Adapter_RPI::writeI2C(uint8_t addr, unsigned char *w, uint8_t count){
     
     uint8_t write_attempts = 0;
     
-    while(1)
-    {
+    while(1){
         this->writeReadI2C(addr, w, count, checksum, 2);
         
-        	if( (checksum[0] == checksum_array[0]) & (checksum[1] == checksum_array[1]) )
-        {
+        if( (checksum[0] == checksum_array[0]) & (checksum[1] == checksum_array[1]) ){
             return count;
         }
-        	else if(write_attempts > ATTEMPTS)
-        {
+        else if(write_attempts > ATTEMPTS){
             errorNum ++;
             printf("Error: Packet#%u CRC check failed -- max(5) attempts reached... giving up!\n", packetNum);
             return 0;
@@ -194,11 +181,9 @@ int I2C_Adapter_RPI::writeI2C_no_checksum(uint8_t addr, unsigned char *w, uint8_
     if(fd[addr] == -1)
         attach_fd(addr);
 
-    if(debug_mode)
-    {
+    if(debug_mode){
         printf("Write(0x%02x) P#%u: ", addr, packetNum);
-        	for(int i = 0; i< count; i++)
-        {
+        for(int i = 0; i< count; i++){
             printf("0x%02x ", w[i]);
         }	
         printf("\n");
@@ -219,11 +204,9 @@ int I2C_Adapter_RPI::readI2C(uint8_t addr, unsigned char *r, uint8_t count){
         
     int ret = read(fd[addr], r, count);
     
-    if(debug_mode)
-    {
+    if(debug_mode){
         printf("Read (0x%02x) P#%u: ", addr, packetNum);	
-        	for(int i = 0; i< count; i++)
-        {
+        for(int i = 0; i< count; i++){
             printf("0x%02x ", r[i]);
         }	
         printf("\n");
@@ -237,16 +220,13 @@ int I2C_Adapter_RPI::writeReadI2C(uint8_t addr, unsigned char *w, uint8_t wcount
     pthread_mutex_lock(&rwMutex); 	//Lock readwrite mutex
     packetNum++;
     
-    if(fd[addr] == -1)
-    {
+    if(fd[addr] == -1){
         attach_fd(addr);
     }
     
-    if(debug_mode)
-    {
+    if(debug_mode){
         printf("Write(0x%02x) P#%u: ", addr, packetNum);
-        	for(int i = 0; i< wcount; i++)
-        {
+        for(int i = 0; i< wcount; i++){
             printf("0x%02x ", w[i]);
         }
         printf("\n");
@@ -259,11 +239,9 @@ int I2C_Adapter_RPI::writeReadI2C(uint8_t addr, unsigned char *w, uint8_t wcount
     
     int ret = read(fd[addr], r, rcount);
     
-    if(debug_mode)
-    {
+    if(debug_mode){
         printf("Read (0x%02x) P#%u: ", addr, packetNum);	
-        	for(int i = 0; i< rcount; i++)
-        {
+        for(int i = 0; i< rcount; i++){
             printf("0x%02x ", r[i]);
         }	
         printf("\n");
@@ -284,21 +262,17 @@ int I2C_Adapter_RPI::writeReadI2C_checksum(uint8_t addr, unsigned char *w, uint8
     
     uint8_t write_attempts = 0;
     
-    while(1)
-    {
+    while(1){
         this->writeReadI2C(addr, w, wcount, r_checksum, rcount + 2, readDelay);
         
-        	if( (r_checksum[rcount] == checksum_array[0]) & (r_checksum[rcount+1] == checksum_array[1]) )
-        {
+        if( (r_checksum[rcount] == checksum_array[0]) & (r_checksum[rcount+1] == checksum_array[1]) ){
             //memcpy( r, r_checksum, rcount * sizeof(unsigned char) );
-            		for(int i = 0; i < rcount; i ++)
-            {
+            for(int i = 0; i < rcount; i ++){
                 r[i] = r_checksum[i];
             }
             return rcount;
         }
-        	else if(write_attempts > ATTEMPTS)
-        {
+        else if(write_attempts > ATTEMPTS){
             errorNum ++;
             printf("Error: Packet#%u CRC check failed -- max(5) attempts reached... giving up!\n", packetNum);
             return 0;
