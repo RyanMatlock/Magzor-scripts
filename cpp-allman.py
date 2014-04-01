@@ -58,3 +58,30 @@ print(cpp_path)
 print(cpp_filename)
 """
 
+TAB_REPLACEMENT = " " * 4
+
+# states for line parser
+INDENT = "INDENT"
+CODE = "CODE"
+
+cpp_filename, cpp_ext = cpp_filename.split(".")
+
+with open(cpp_abs_path) as cpp:
+    with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." + cpp_ext),
+              "w") as new_cpp:
+        line_no = 1
+        for line in cpp:
+            print("line {}: {!r}".format(line_no, line))
+            line_no += 1
+            indentation_level = 0
+            state = INDENT
+            for element in line:
+                if state == INDENT and element == "\t":
+                    indentation_level += 1
+                else:
+                    state = CODE
+            new_cpp.write(TAB_REPLACEMENT * indentation_level +
+                          line[indentation_level-1:]
+)
+cpp.close()
+new_cpp.close()
