@@ -10,6 +10,7 @@ definitions, loops, conditionals, etc. and a default indentation of 4 spaces
 
 import os
 import sys
+import re
 
 """
 Actually, I don't know if I really like what you're doing here.  Instead, I
@@ -66,6 +67,12 @@ CODE = "CODE"
 
 cpp_filename, cpp_ext = cpp_filename.split(".")
 
+## opening braces and closing braces should be on their own lines
+# captures opening brace and any subsequent comments
+#opening_brace = re.compile(r".+\{\s?(((\/\/)|(\/\*)).*)?$")
+#opening_brace = re.compile(r"^\s.+\{.*$")
+opening_brace = re.compile(r"^\s(?P<code>.+)(?P<brace_etc>\{.*)$")
+
 with open(cpp_abs_path) as cpp:
     with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." + cpp_ext),
               "w") as new_cpp:
@@ -80,8 +87,16 @@ with open(cpp_abs_path) as cpp:
                     indentation_level += 1
                 else:
                     state = CODE
-            new_cpp.write(TAB_REPLACEMENT * indentation_level +
-                          line[indentation_level:]
-)
+            new_line = TAB_REPLACEMENT * indentation_level
+
+            opening_brace_match = opening_brace.match(line)
+            if opening_brace_match is not None:
+                new_line += opening_brace_match.group("code")
+                new_line += "\n"
+                new_line += TAB_REPLACEMENT * indentation_level
+                new_line += opening_brace_match.group("brace_etc")
+            #new_line = TAB_REPLACEMENT * indentation_level + \
+            #              line[indentation_level:]
+            new_cpp.write(new_line)
 cpp.close()
 new_cpp.close()
