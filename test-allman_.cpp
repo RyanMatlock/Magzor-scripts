@@ -70,8 +70,7 @@ pthread_mutex_t I2C_Adapter_RPI::rwMutex = PTHREAD_MUTEX_INITIALIZER;
 bool I2C_Adapter_RPI::debug_mode = true;
 
 I2C_Adapter_RPI::I2C_Adapter_RPI(){
-    for (int i = 0; i < 128; i++) 
-    {
+    for (int i = 0; i < 128; i++) {
         fd[i] = -1;
     }	
 }
@@ -132,8 +131,7 @@ void I2C_Adapter_RPI::checksum(unsigned char *d, uint8_t length, unsigned char *
    unsigned int temp;
 
    for (count = 0; count < length; ++count)
-  
-{
+   {
      temp = (*d++ ^ (crc >> 8)) & 0xff;
      crc = crc_table[temp] ^ (crc << 8);
    }

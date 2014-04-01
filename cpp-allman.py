@@ -71,15 +71,19 @@ cpp_filename, cpp_ext = cpp_filename.split(".")
 # captures opening brace and any subsequent comments
 #opening_brace = re.compile(r".+\{\s?(((\/\/)|(\/\*)).*)?$")
 #opening_brace = re.compile(r"^\s.+\{.*$")
-opening_brace = re.compile(r"^\s(?P<code>.+)(?P<brace_etc>\{.*)$")
+# apparently you need to do \s+ instead of a bare \s because in the latter
+# case, only one instance of \t will be caught
+# also, you need to consider that there might be spaces within <code>, because
+# I think the dot doesn't gobble spaces
+opening_brace = re.compile(r"^\s+(?P<code>(.+\s+)+)\s?(?P<brace_etc>\{.*)$")
 
 with open(cpp_abs_path) as cpp:
     with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." + cpp_ext),
               "w") as new_cpp:
-        #line_no = 1
+        line_no = 0
         for line in cpp:
             #print("line {}: {!r}".format(line_no, line))
-            #line_no += 1
+            line_no += 1
             indentation_level = 0
             state = INDENT
             for element in line:
@@ -89,21 +93,25 @@ with open(cpp_abs_path) as cpp:
                     state = CODE
             new_line = TAB_REPLACEMENT * indentation_level
 
-            """
+            
             opening_brace_match = opening_brace.match(line)
             if opening_brace_match is not None:
                 new_line += opening_brace_match.group("code")
                 # next lines just add the brace and technically create two
                 # lines
                 new_line += "\n"
+                print("line {}: {!r}".format(line_no, new_line))
+                #print("{!r}".format(new_line))
                 new_line += TAB_REPLACEMENT * indentation_level
                 new_line += opening_brace_match.group("brace_etc")
                 new_line += "\n"
+                print("line {}: {!r}".format(line_no, new_line))
+                #print("{!r}".format(new_line))
             else:
                 new_line += line[indentation_level:]
-            """
+            
 
-            new_line += line[indentation_level:]
+            #new_line += line[indentation_level:]
             
             new_cpp.write(new_line)
 cpp.close()
