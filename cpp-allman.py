@@ -75,7 +75,8 @@ cpp_filename, cpp_ext = cpp_filename.split(".")
 # case, only one instance of \t will be caught
 # also, you need to consider that there might be spaces within <code>, because
 # I think the dot doesn't gobble spaces
-opening_brace = re.compile(r"^\s+(?P<code>(.+\s+)+)\s?(?P<brace_etc>\{.*)$")
+#opening_brace = re.compile(r"^\s+(?P<code>(.+\s+)+)(?P<brace_etc>\{.*)$")
+opening_brace = re.compile(r"^\s+(?P<code>(.+\s+)+)(?P<brace_etc>\{.*)$")
 
 with open(cpp_abs_path) as cpp:
     with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." + cpp_ext),
