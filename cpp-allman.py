@@ -55,7 +55,9 @@ while True:
         assert(len(cpp_filename.split(".")) == 2)
         break
     except AssertionError:
-        print("Your filename is dumb.  "
+        print(("=" * 30) +
+              "\n"
+              "Your filename is dumb.  "
               "It should only have one period, period."
               "\n\n"
               "I'm giving you an opportunity to try again."
