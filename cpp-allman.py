@@ -65,6 +65,8 @@ TAB_REPLACEMENT = " " * 4
 INDENT = "INDENT"
 CODE = "CODE"
 
+# this breaks if your cpp file contains more than one (.) -- see if valid cpp
+# source files may/typically do contain more than one
 cpp_filename, cpp_ext = cpp_filename.split(".")
 
 ## opening braces and closing braces should be on their own lines
