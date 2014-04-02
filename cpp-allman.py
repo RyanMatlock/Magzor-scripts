@@ -76,7 +76,7 @@ cpp_filename, cpp_ext = cpp_filename.split(".")
 # also, you need to consider that there might be spaces within <code>, because
 # I think the dot doesn't gobble spaces
 #opening_brace = re.compile(r"^\s+(?P<code>(.+\s+)+)(?P<brace_etc>\{.*)$")
-opening_brace = re.compile(r"^(\s+)?(?P<code>(.+\s+)+)?(?P<brace_etc>\{.*)$")
+opening_brace = re.compile(r"^(\s+)?(?P<code>((.+\s+)+)?)(?P<brace_etc>\{.*)$")
 
 def test_opening_brace_regex():
     tests = ["{\n",
