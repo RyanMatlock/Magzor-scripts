@@ -80,8 +80,10 @@ opening_brace = re.compile(r"^\s+(?P<code>(.+\s+)+)(?P<brace_etc>\{.*)$")
 
 def test_opening_brace_regex():
     tests = ["{\n",
-             "\t\tint func(std::I2Cdriver int &x, bool status) { // comment",
-             (" " * 4) + "for(int i = 0; i++; i < limit) {\n"]
+"\t\tint func(std::I2Cdriver int &x, bool status) 
+{ // comment",
+(" " * 4) + "for(int i = 0; i++; i < limit) 
+{\n"]
 
     test_matches = [opening_brace.match(test) for test in tests]
 
@@ -94,7 +96,8 @@ with open(cpp_abs_path) as cpp:
               "w") as new_cpp:
         line_no = 0
         for line in cpp:
-            #print("line {}: {!r}".format(line_no, line))
+#print("line {}: 
+{!r}".format(line_no, line))
             line_no += 1
             indentation_level = 0
             state = INDENT
@@ -112,12 +115,14 @@ with open(cpp_abs_path) as cpp:
                 # next lines just add the brace and technically create two
                 # lines
                 new_line += "\n"
-                print("line {}: {!r}".format(line_no, new_line))
+print("line {}: 
+{!r}".format(line_no, new_line))
                 #print("{!r}".format(new_line))
                 new_line += TAB_REPLACEMENT * indentation_level
                 new_line += opening_brace_match.group("brace_etc")
                 new_line += "\n"
-                print("line {}: {!r}".format(line_no, new_line))
+print("line {}: 
+{!r}".format(line_no, new_line))
                 #print("{!r}".format(new_line))
             else:
                 new_line += line[indentation_level:]
