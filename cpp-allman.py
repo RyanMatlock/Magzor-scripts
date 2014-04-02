@@ -46,11 +46,27 @@ def test_path_operations():
 if len(sys.argv) != 2:
     print ("Program not that advanced yet.  Sorry!")
 
-
 cpp_file = sys.argv[1]
 
-cpp_abs_path = os.path.abspath(cpp_file)
-cpp_path, cpp_filename = os.path.split(cpp_abs_path)
+while True:
+    cpp_abs_path = os.path.abspath(cpp_file)
+    cpp_path, cpp_filename = os.path.split(cpp_abs_path)
+    try:
+        assert(len(cpp_filename.split(".")) == 2)
+        break
+    except AssertionError:
+        print("Your filename is dumb.  "
+              "It should only have one period, period."
+              "\n\n"
+              "I'm giving you an opportunity to try again."
+              "\n"
+              "Enter cpp file:", end=" ")
+        cpp_file = input()
+
+cpp_filename, cpp_ext = cpp_filename.split(".")
+
+
+
 
 """
 print(sys.argv[1])
@@ -65,20 +81,16 @@ TAB_REPLACEMENT = " " * 4
 INDENT = "INDENT"
 CODE = "CODE"
 
-# this breaks if your cpp file contains more than one (.) -- see if valid cpp
-# source files may/typically do contain more than one
-cpp_filename, cpp_ext = cpp_filename.split(".")
 
 ## opening braces and closing braces should be on their own lines
 # captures opening brace and any subsequent comments
-#opening_brace = re.compile(r".+\{\s?(((\/\/)|(\/\*)).*)?$")
-#opening_brace = re.compile(r"^\s.+\{.*$")
-# apparently you need to do \s+ instead of a bare \s because in the latter
-# case, only one instance of \t will be caught
 # also, you need to consider that there might be spaces within <code>, because
 # I think the dot doesn't gobble spaces
-#opening_brace = re.compile(r"^\s+(?P<code>(.+\s+)+)(?P<brace_etc>\{.*)$")
-opening_brace = re.compile(r"^(\s+)?(?P<code>((.+\s+)+)?)(?P<brace_etc>\{.*)$")
+# apparently you can split regexes across multiple lines like this:
+opening_brace = re.compile(
+    (r"^(\s+)?(?P<code>((.+(\s+)?)+)?)" # everything before the brace
+     "(?P<brace_etc>\{.*\s*)$" # brace, spaces, comments, etc.
+    ))
 
 def test_opening_brace_regex():
     # this test suite was a bit contrived -- actual examples are now included
