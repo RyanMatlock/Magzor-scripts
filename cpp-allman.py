@@ -91,7 +91,7 @@ def test_opening_brace_regex():
     test_matches = [opening_brace.match(test) for test in tests]
 
     for i in range(len(test_matches)):
-        #print("{}: {!r}".format(i,tests[i]))
+        print("{}: {!r}".format(i,tests[i]))
         assert test_matches[i] is not None
 
 with open(cpp_abs_path) as cpp:
