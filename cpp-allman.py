@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 """
 cpp-allman.py
 
@@ -19,15 +19,12 @@ at once.  That would be way cooler, and then we could apply this script
 efficiently.
 """
 
-"""
-print("Enter C++ file:", end=" ")
 
-cpp_file = input()
+# print("Enter C++ file:", end=" ")
+# cpp_file = input()
+# cpp_abs_path = os.path.abspath(cpp_file)
+# cpp_path, cpp_filename = os.path.split(cpp_abs_path)
 
-cpp_abs_path = os.path.abspath(cpp_file)
-
-cpp_path, cpp_filename = os.path.split(cpp_abs_path)
-"""
 
 def test_command_line_operations():
     pass
@@ -55,14 +52,14 @@ while True:
         assert(len(cpp_filename.split(".")) == 2)
         break
     except AssertionError:
-        print(("=" * 30) +
-              "\n"
-              "Your filename is dumb.  "
-              "It should only have one period, period."
-              "\n\n"
-              "I'm giving you an opportunity to try again."
-              "\n"
-              "Enter cpp file:", end=" ")
+        # print(("=" * 30) +
+        #       "\n"
+        #       "Your filename is dumb.  "
+        #       "It should only have one period, period."
+        #       "\n\n"
+        #       "I'm giving you an opportunity to try again."
+        #       "\n"
+        #       "Enter cpp file:", end=" ")
         cpp_file = input()
 
 cpp_filename, cpp_ext = cpp_filename.split(".")
@@ -70,12 +67,12 @@ cpp_filename, cpp_ext = cpp_filename.split(".")
 
 
 
-"""
-print(sys.argv[1])
-print(cpp_abs_path)
-print(cpp_path)
-print(cpp_filename)
-"""
+
+# print(sys.argv[1])
+# print(cpp_abs_path)
+# print(cpp_path)
+# print(cpp_filename)
+
 
 TAB_REPLACEMENT = " " * 4
 
@@ -94,22 +91,27 @@ opening_brace = re.compile(
      "(?P<brace_etc>\{.*\s*)$" # brace, spaces, comments, etc.
     ))
 
-def test_opening_brace_regex():
-    # this test suite was a bit contrived -- actual examples are now included
-    tests = ["{\n",
-             "\t\tint func(std::I2Cdriver int &x, bool status) { // comment",
-             (" " * 4) + "for(int i = 0; i++; i < limit) {\n",
-             ## end of contrived examples ##
-             "I2C_Adapter_RPI::I2C_Adapter_RPI(){",
-             "	for (int i = 0; i < 128; i++) {",
-             "I2C_Adapter_RPI* I2C_Adapter_RPI::getInstance(){ ",]
+## let's see how quickly pytest runs without this test
+# def test_opening_brace_regex():
+#     # this test suite was a bit contrived -- actual examples are now included
+#     tests = ["{\n",
+#              "\t\tint func(std::I2Cdriver int &x, bool status) { // comment",
+#              (" " * 4) + "for(int i = 0; i++; i < limit) {\n",
+#              ## end of contrived examples ##
+#              "I2C_Adapter_RPI::I2C_Adapter_RPI(){",
+#              "	for (int i = 0; i < 128; i++) {",
+#              "I2C_Adapter_RPI* I2C_Adapter_RPI::getInstance(){ ",]
 
-    test_matches = [opening_brace.match(test) for test in tests]
+#     """
+#     test_matches = [opening_brace.match(test) for test in tests]
 
-    for i in range(len(test_matches)):
-        print("{}: {!r}".format(i,tests[i]))
-        assert test_matches[i] is not None
-
+#     for i in range(len(test_matches)):
+#         print("{}: {!r}".format(i,tests[i]))
+#         assert test_matches[i] is not None
+#     """
+#     failures = [test for test in tests if not my_regex.match(test)]
+#     assert len(failures) == 0, failures
+    
 with open(cpp_abs_path) as cpp:
     with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." + cpp_ext),
               "w") as new_cpp:
