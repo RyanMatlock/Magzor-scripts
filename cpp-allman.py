@@ -79,9 +79,14 @@ cpp_filename, cpp_ext = cpp_filename.split(".")
 opening_brace = re.compile(r"^(\s+)?(?P<code>((.+\s+)+)?)(?P<brace_etc>\{.*)$")
 
 def test_opening_brace_regex():
+    # this test suite was a bit contrived -- actual examples are now included
     tests = ["{\n",
              "\t\tint func(std::I2Cdriver int &x, bool status) { // comment",
-             (" " * 4) + "for(int i = 0; i++; i < limit) {\n"]
+             (" " * 4) + "for(int i = 0; i++; i < limit) {\n",
+             ## end of contrived examples ##
+             "I2C_Adapter_RPI::I2C_Adapter_RPI(){",
+             "	for (int i = 0; i < 128; i++) {",
+             "I2C_Adapter_RPI* I2C_Adapter_RPI::getInstance(){ ",]
 
     test_matches = [opening_brace.match(test) for test in tests]
 
