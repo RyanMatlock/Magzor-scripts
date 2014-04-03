@@ -52,14 +52,14 @@ while True:
         assert(len(cpp_filename.split(".")) == 2)
         break
     except AssertionError:
-        # print(("=" * 30) +
-        #       "\n"
-        #       "Your filename is dumb.  "
-        #       "It should only have one period, period."
-        #       "\n\n"
-        #       "I'm giving you an opportunity to try again."
-        #       "\n"
-        #       "Enter cpp file:", end=" ")
+        print(("=" * 30) +
+              "\n"
+              "Your filename is dumb.  "
+              "It should only have one period, period."
+              "\n\n"
+              "I'm giving you an opportunity to try again."
+              "\n"
+              "Enter cpp file:", end=" ")
         cpp_file = input()
 
 cpp_filename, cpp_ext = cpp_filename.split(".")
@@ -112,43 +112,48 @@ def test_opening_brace_regex():
     """
     failures = [test for test in tests if not opening_brace.match(test)]
     assert len(failures) == 0, failures
-    
-# with open(cpp_abs_path) as cpp:
-#     with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." + cpp_ext),
-#               "w") as new_cpp:
-#         line_no = 0
-#         for line in cpp:
-#             #print("line {}: {!r}".format(line_no, line))
-#             line_no += 1
-#             indentation_level = 0
-#             state = INDENT
-#             for element in line:
-#                 if state == INDENT and element == "\t":
-#                     indentation_level += 1
-#                 else:
-#                     state = CODE
-#             new_line = TAB_REPLACEMENT * indentation_level
 
-            
-#             opening_brace_match = opening_brace.match(line)
-#             if opening_brace_match is not None:
-#                 new_line += opening_brace_match.group("code")
-#                 # next lines just add the brace and technically create two
-#                 # lines
-#                 new_line += "\n"
-#                 print("line {}: {!r}".format(line_no, new_line))
-#                 #print("{!r}".format(new_line))
-#                 new_line += TAB_REPLACEMENT * indentation_level
-#                 new_line += opening_brace_match.group("brace_etc")
-#                 new_line += "\n"
-#                 print("line {}: {!r}".format(line_no, new_line))
-#                 #print("{!r}".format(new_line))
-#             else:
-#                 new_line += line[indentation_level:]
-            
 
-#             #new_line += line[indentation_level:]
-            
-#             new_cpp.write(new_line)
-# cpp.close()
-# new_cpp.close()
+def main():
+    with open(cpp_abs_path) as cpp:
+        with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." +
+                               cpp_ext),"w") as new_cpp:
+            line_no = 0
+            for line in cpp:
+                #print("line {}: {!r}".format(line_no, line))
+                line_no += 1
+                indentation_level = 0
+                state = INDENT
+                for element in line:
+                    if state == INDENT and element == "\t":
+                        indentation_level += 1
+                    else:
+                        state = CODE
+                new_line = TAB_REPLACEMENT * indentation_level
+
+
+                opening_brace_match = opening_brace.match(line)
+                if opening_brace_match is not None:
+                    new_line += opening_brace_match.group("code")
+                    # next lines just add the brace and technically create two
+                    # lines
+                    new_line += "\n"
+                    print("line {}: {!r}".format(line_no, new_line))
+                    #print("{!r}".format(new_line))
+                    new_line += TAB_REPLACEMENT * indentation_level
+                    new_line += opening_brace_match.group("brace_etc")
+                    new_line += "\n"
+                    print("line {}: {!r}".format(line_no, new_line))
+                    #print("{!r}".format(new_line))
+                else:
+                    new_line += line[indentation_level:]
+
+
+                #new_line += line[indentation_level:]
+
+                new_cpp.write(new_line)
+    cpp.close()
+    new_cpp.close()
+
+if __name__ == "__main__":
+    main()
