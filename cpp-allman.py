@@ -81,40 +81,41 @@ INDENT = "INDENT"
 CODE = "CODE"
 
 
-## opening braces and closing braces should be on their own lines
-# captures opening brace and any subsequent comments
-# also, you need to consider that there might be spaces within <code>, because
-# I think the dot doesn't gobble spaces
-# apparently you can split regexes across multiple lines like this:
-opening_brace = re.compile(
-    (r"^(\s+)?(?P<code>((.+(\s+)?)+)?)" # everything before the brace
-     "(?P<brace_etc>\{.*\s*)$" # brace, spaces, comments, etc.
-    ))
-
-## let's see how quickly pytest runs without this test
-def test_opening_brace_regex():
-    # this test suite was a bit contrived -- actual examples are now included
-    tests = ["{\n",
-             "\t\tint func(std::I2Cdriver int &x, bool status) { // comment",
-             (" " * 4) + "for(int i = 0; i++; i < limit) {\n",
-             ## end of contrived examples ##
-             "I2C_Adapter_RPI::I2C_Adapter_RPI(){",
-             "	for (int i = 0; i < 128; i++) {",
-             "I2C_Adapter_RPI* I2C_Adapter_RPI::getInstance(){ ",
-             "foo"]
-
-    """
-    test_matches = [opening_brace.match(test) for test in tests]
-
-    for i in range(len(test_matches)):
-        print("{}: {!r}".format(i,tests[i]))
-        assert test_matches[i] is not None
-    """
-    failures = [test for test in tests if not opening_brace.match(test)]
-    assert len(failures) == 0, failures
 
 
 def main():
+
+    ## opening braces and closing braces should be on their own lines
+    # captures opening brace and any subsequent comments
+    # also, you need to consider that there might be spaces within <code>, because
+    # I think the dot doesn't gobble spaces
+    # apparently you can split regexes across multiple lines like this:
+    opening_brace = re.compile(
+        (r"^(\s+)?(?P<code>((.+(\s+)?)+)?)" # everything before the brace
+         "(?P<brace_etc>\{.*\s*)$" # brace, spaces, comments, etc.
+        ))
+
+    def test_opening_brace_regex():
+        # this test suite was a bit contrived -- actual examples are now included
+        tests = ["{\n",
+                 "\t\tint func(std::I2Cdriver int &x, bool status) { // comment",
+                 (" " * 4) + "for(int i = 0; i++; i < limit) {\n",
+                 ## end of contrived examples ##
+                 "I2C_Adapter_RPI::I2C_Adapter_RPI(){",
+                 "	for (int i = 0; i < 128; i++) {",
+                 "I2C_Adapter_RPI* I2C_Adapter_RPI::getInstance(){ ",
+                 "foo"]
+
+        """
+        test_matches = [opening_brace.match(test) for test in tests]
+
+        for i in range(len(test_matches)):
+            print("{}: {!r}".format(i,tests[i]))
+            assert test_matches[i] is not None
+        """
+        failures = [test for test in tests if not opening_brace.match(test)]
+        assert len(failures) == 0, failures
+
     with open(cpp_abs_path) as cpp:
         with open(os.path.join(cpp_path, cpp_filename + "-allman" + "." +
                                cpp_ext),"w") as new_cpp:
