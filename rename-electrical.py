@@ -64,7 +64,7 @@ CAM_DIR = "CAM"
 
 def has_ext(fname, ext):
     """
-    better implementation than endswith because I can pass in regexs for ext
+    better implementation than endswith() because I can pass in regexs for ext
     """
     p = re.compile(".*\.{ext}$".format(ext))
     m = p.match(fname)
@@ -73,17 +73,21 @@ def has_ext(fname, ext):
         return True
     return False
 
+# def contains_base_ext(fnames):
+#     patterns = [re.compile(".*\.{}$".format(ext)) for ext in BASE_EXT]
+
+#     matches = [[pattern.match(fname) for pattern in patterns]
+#                 for fname in fnames]
+
+#     for match_set in matches:
+#         for match in match_set:
+#             if match is not None:
+#                 return True
+#     return False
+
+# going to refactor contains_base_ext() on account of has_ext
 def contains_base_ext(fnames):
-    patterns = [re.compile(".*\.{}$".format(ext)) for ext in BASE_EXT]
-
-    matches = [[pattern.match(fname) for pattern in patterns]
-                for fname in fnames]
-
-    for match_set in matches:
-        for match in match_set:
-            if match is not None:
-                return True
-    return False
+    
 
 def is_cruft(fname):
     for ext in CRUFT_EXT:
