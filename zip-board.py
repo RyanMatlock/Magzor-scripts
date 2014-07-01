@@ -35,46 +35,50 @@ CRUFT_EXT = ["s#\d", # schematic auto save files
               ]
 
 # Gerber/Excellon file extensions for OSH Park and stencil making
-CAM_EXT = ["GBL", # bottom layer
-           "GBO", # bottom silkscreen
-           "GBS", # bottom soldermask
-           "GKO", # dimension
-           "GTL", # top layer
-           "GTO", # top silkscreen
-           "GTS", # top soldermask
-           "XLN", # Excellon drill file
-           "TCRM", # top cream layer
-           "BCRM", # bottom cream layer
-           ]
+OSH_PARK_EXT = ["GBL", # bottom layer
+                "GBO", # bottom silkscreen
+                "GBS", # bottom soldermask
+                "GKO", # dimension
+                "GTL", # top layer
+                "GTO", # top silkscreen
+                "GTS", # top soldermask
+                "XLN", # Excellon drill file
+                ]
+
+STENCIL_EXT = ["TCRM", # top cream layer
+               "BCRM", # bottom cream layer
+               ]
+CAM_EXT = OSH_PARK_EXT + STENCIL_EXT
+CAM_EXT.sort()
 
 def has_ext(fname, ext):
     """
     better implementation than endswith() because I can pass in regexs for ext
     """
-    p = re.compile(".*\.{ext}$".format(ext))
-    m = p.match(fname)
+    p = re.compile(".*\.{ext}$".format(ext=ext))
 
-    if m is not None:
+    if p.match(fname) is not None:
         return True
     return False
 
-print("locals before:")
-print(locals())
-def is_type_generator(name, extension_list):
-    exec("""def is_{name}(fname):
-    for ext in {extension_list}:
-        if has_ext(fname, ext):
-            return True
-    return False""".format(name=name, extension_list=extension_list))
+# this doesn't seem to be working for some reason -- investigate later
+# print("locals before:")
+# print(locals())
+# def is_type_generator(name, extension_list):
+#     exec("""def is_{name}(fname):
+#     for ext in {extension_list}:
+#         if has_ext(fname, ext):
+#             return True
+#     return False""".format(name=name, extension_list=extension_list))
 
-# this is maybe slightly gross because I need to pass the string of the (list)
-# object instead of the object itself
-is_type_generator("cruft", "CRUFT_EXT")
-is_type_generator("cam", "CAM_EXT")
-print()
-print("locals after:")
-print(locals())
-print()
+# # this is maybe slightly gross because I need to pass the test_str of the (list)
+# # object instead of the object itself
+# is_type_generator("cruft", "CRUFT_EXT")
+# is_type_generator("cam", "CAM_EXT")
+# print()
+# print("locals after:")
+# print(locals())
+# print()
 
 # def is_cruft(fname):
 #     for ext in CRUFT_EXT:
@@ -82,24 +86,63 @@ print()
 #             return True
 #     return False
 
-def delete_cruft(fname):
-    if is_cruft(fname):
-        os.remove(fname)
-        return
-    else:
-        return
+# def delete_cruft(fname):
+#     if is_cruft(fname):
+#         os.remove(fname)
+#         return
+#     else:
+#         return
 
-# not very DRY
+# # not very DRY
 # def is_cam(fname):
 #     for ext in CAM_EXT:
 #         if has_ext(fname, ext):
 #             return True
 #     return False
 
+def has_ext_in_list(fname, ext_list):
+    for ext in ext_list:
+        if has_ext(fname, ext):
+            return True
+    return False
+
+# these next few aren't great, but it's better
+def is_cruft(fname):
+    return has_ext_in_list(fname, CRUFT_EXT)
+
+def is_cam(fname):
+    return has_ext_in_list(fname, CAM_EXT)
+
+def is_stencil(fname):
+    return has_ext_in_list(fname, STENCIL_EXT)
+
+def is_in_osh_zip(fname):
+    return has_ext_in_list(fname, OSH_PARK_EXT)
+
+def delete_cruft(fname):
+    if is_cruft(name):
+        os.remove(fname)
+        return
+    else:
+        return
+
+
+#
+# some_cruft = "bar.s#1"
+# some_cam = "foo.TCRM"
+
+# def check_has_ext(test_str, ext):
+#     print("{}: {}".format(test_str, has_ext(test_str, ext)))
+
+# check_has_ext(some_cruft, CRUFT_EXT[0])
+# check_has_ext(some_cam, "TCRM")
+# ugh, just spent too long tracking down a stupid bug.  .format(ext=ext) is what
+# I should have written, but what I had was .format(ext) in my definitin of
+# has_ext()
 
 while True:
     root_dir = input("Enter root directory of your EAGLE project\n(if left "
-                     "blank, {cwd} will be used)\n\t: ".format(cwd=os.getcwd()))
+                     "blank, {cwd} will be used):\n".format(cwd=os.getcwd()))
 
     if not root_dir:
         root_dir = os.getcwd()
@@ -110,7 +153,6 @@ while True:
         root_dir = os.path.expanduser(root_dir)
 
     if os.path.isdir(root_dir):
-        print(root_dir)
         if name_p.match(os.path.basename(root_dir)) is not None:
             break
         else:
@@ -129,6 +171,8 @@ while True:
         print("{root_dir} is an invalid directory. Please try again or "
               "press \"Q\" to quit.".format(root_dir=root_dir))
 
+
+naming_convention_mismatch = []
 for element in os.listdir(root_dir):
     if element[0] not in IGNORE_PREFIXES:
         # if os.path.isdir(element):
@@ -136,11 +180,14 @@ for element in os.listdir(root_dir):
         # print(element)
         if not os.path.isdir(element):
             if name_p.match(element) is None:
-                print("{element} does not match naming convention (ask Tom or "
-                      "Matlock if you're unsure)".format(element=element))
+                naming_convention_mismatch.append(element)
             if is_cruft(element):
                 print("{element} will be deleted".format(element=element))
             for ext in CAM_EXT:
-                if has_ext(element):
+                if has_ext(element, ext):
                     print("{element} will be moved to ./CAM".format(element=element))
-            
+
+print("The following files did not comply with the naming convention:\n"
+      "(if you want to know more, ask Tom or Matlock)")
+for entry in naming_convention_mismatch:
+    print("  " + entry)
