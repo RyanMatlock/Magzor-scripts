@@ -15,6 +15,8 @@ Ryan Matlock
 
 import re
 import os
+import shutil
+import zipfile
 
 # matches pattern "ME-XXXXX-XL" where X is a number and L is a letter
 name_p = re.compile("ME-(\d){5,}-\d+[A-Z]+")
@@ -48,7 +50,10 @@ OSH_PARK_EXT = ["GBL", # bottom layer
 STENCIL_EXT = ["TCRM", # top cream layer
                "BCRM", # bottom cream layer
                ]
-CAM_EXT = OSH_PARK_EXT + STENCIL_EXT
+MISC_CAM_EXT = ["dri", # drill file verification
+                "gpi", # Gerber file verification?
+                ]
+CAM_EXT = OSH_PARK_EXT + STENCIL_EXT + MISC_CAM_EXT
 CAM_EXT.sort()
 
 def has_ext(fname, ext):
@@ -120,14 +125,13 @@ def is_in_osh_zip(fname):
     return has_ext_in_list(fname, OSH_PARK_EXT)
 
 def delete_cruft(fname):
-    if is_cruft(name):
+    if is_cruft(fname):
         os.remove(fname)
         return
     else:
         return
 
 
-#
 # some_cruft = "bar.s#1"
 # some_cam = "foo.TCRM"
 
@@ -171,7 +175,43 @@ while True:
         print("{root_dir} is an invalid directory. Please try again or "
               "press \"Q\" to quit.".format(root_dir=root_dir))
 
+BASE_CAM_DIR = "CAM"
+BASE_STENCIL_DIR = "Stencil"
+BASE_OSH_PARK_DIR = "OSH-Park"
 
+CAM_DIR = os.path.join(root_dir, BASE_CAM_DIR)
+STENCIL_DIR = os.path.join(CAM_DIR, BASE_STENCIL_DIR)
+OSH_PARK_DIR = os.path.join(CAM_DIR, BASE_OSH_PARK_DIR)
+
+if not os.path.isdir(CAM_DIR):
+    os.makedirs(STENCIL_DIR)
+    os.makedirs(OSH_PARK_DIR)
+    print("./CAM directories successfully created.")
+elif not os.path.isdir(STENCIL_DIR):            
+    os.makedirs(STENCIL_DIR)
+    print("./CAM/Stencil directory successfully created.")
+elif not os.path.isdir(OSH_PARK_DIR):
+    os.makedirs(OSH_PARK_DIR)
+    print("./CAM/OSH-Park directory successfully created.")
+else:
+    print("./CAM + subdirectories  already exist, and that's ok!")
+
+
+base_name = os.path.basename(root_dir)
+zf_name = base_name + ".zip"
+
+while True:
+    if os.path.isfile(os.path.join(OSH_PARK_DIR, zf_name)):
+        response = input("Target zipfile already exists. Delete (Y) or quit "
+                         "(Q)? ")
+        if response.upper() == "Y":
+            os.remove(os.path.join(OSH_PARK_DIR, zf_name))
+            break
+        elif response.upper() == "Q":
+            exit()
+    
+zf = zipfile.ZipFile(zf_name, "w")
+            
 naming_convention_mismatch = []
 for element in os.listdir(root_dir):
     if element[0] not in IGNORE_PREFIXES:
@@ -179,15 +219,26 @@ for element in os.listdir(root_dir):
         #     element += "\n  ^(is a directory)"
         # print(element)
         if not os.path.isdir(element):
+            delete_cruft(element)
             if name_p.match(element) is None:
                 naming_convention_mismatch.append(element)
-            if is_cruft(element):
-                print("{element} will be deleted".format(element=element))
-            for ext in CAM_EXT:
-                if has_ext(element, ext):
-                    print("{element} will be moved to ./CAM".format(element=element))
+            if is_in_osh_zip(element):
+                zf.write(element)
+                shutil.move(os.path.join(root_dir, element), OSH_PARK_DIR)
+            elif is_stencil(element):
+                shutil.move(os.path.join(root_dir, element), STENCIL_DIR)
+            elif is_cam(element):
+                shutil.move(os.path.join(root_dir, element), CAM_DIR)
+            else:
+                pass
+
+zf.close()
+shutil.move(os.path.join(root_dir, zf_name), OSH_PARK_DIR)
+print("OSH Park-ready zip file successfully written.")
 
 print("The following files did not comply with the naming convention:\n"
       "(if you want to know more, ask Tom or Matlock)")
 for entry in naming_convention_mismatch:
     print("  " + entry)
+
+print("Program successfully terminated.")
