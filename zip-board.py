@@ -209,6 +209,8 @@ while True:
             break
         elif response.upper() == "Q":
             exit()
+    else:
+        break
     
 zf = zipfile.ZipFile(zf_name, "w")
             
