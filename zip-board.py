@@ -58,11 +58,29 @@ def has_ext(fname, ext):
         return True
     return False
 
-def is_cruft(fname):
-    for ext in CRUFT_EXT:
+print("locals before:")
+print(locals())
+def is_type_generator(name, extension_list):
+    exec("""def is_{name}(fname):
+    for ext in {extension_list}:
         if has_ext(fname, ext):
             return True
-    return False
+    return False""".format(name=name, extension_list=extension_list))
+
+# this is maybe slightly gross because I need to pass the string of the (list)
+# object instead of the object itself
+is_type_generator("cruft", "CRUFT_EXT")
+is_type_generator("cam", "CAM_EXT")
+print()
+print("locals after:")
+print(locals())
+print()
+
+# def is_cruft(fname):
+#     for ext in CRUFT_EXT:
+#         if has_ext(fname, ext):
+#             return True
+#     return False
 
 def delete_cruft(fname):
     if is_cruft(fname):
@@ -72,11 +90,12 @@ def delete_cruft(fname):
         return
 
 # not very DRY
-def is_cam(fname):
-    for ext in CAM_EXT:
-        if has_ext(fname, ext):
-            return True
-    return False
+# def is_cam(fname):
+#     for ext in CAM_EXT:
+#         if has_ext(fname, ext):
+#             return True
+#     return False
+
 
 while True:
     root_dir = input("Enter root directory of your EAGLE project\n(if left "
