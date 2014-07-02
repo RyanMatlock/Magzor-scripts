@@ -56,6 +56,11 @@ MISC_CAM_EXT = ["dri", # drill file verification
 CAM_EXT = OSH_PARK_EXT + STENCIL_EXT + MISC_CAM_EXT
 CAM_EXT.sort()
 
+# files that don't follow the naming convention
+IGNORE_FNAMES = ["eagle.epf", # EAGLE project config file
+                 "Icon", # icon file that seems to be part of Google Drive
+                 ]
+
 def has_ext(fname, ext):
     """
     better implementation than endswith() because I can pass in regexs for ext
@@ -65,45 +70,6 @@ def has_ext(fname, ext):
     if p.match(fname) is not None:
         return True
     return False
-
-# this doesn't seem to be working for some reason -- investigate later
-# print("locals before:")
-# print(locals())
-# def is_type_generator(name, extension_list):
-#     exec("""def is_{name}(fname):
-#     for ext in {extension_list}:
-#         if has_ext(fname, ext):
-#             return True
-#     return False""".format(name=name, extension_list=extension_list))
-
-# # this is maybe slightly gross because I need to pass the test_str of the (list)
-# # object instead of the object itself
-# is_type_generator("cruft", "CRUFT_EXT")
-# is_type_generator("cam", "CAM_EXT")
-# print()
-# print("locals after:")
-# print(locals())
-# print()
-
-# def is_cruft(fname):
-#     for ext in CRUFT_EXT:
-#         if has_ext(fname, ext):
-#             return True
-#     return False
-
-# def delete_cruft(fname):
-#     if is_cruft(fname):
-#         os.remove(fname)
-#         return
-#     else:
-#         return
-
-# # not very DRY
-# def is_cam(fname):
-#     for ext in CAM_EXT:
-#         if has_ext(fname, ext):
-#             return True
-#     return False
 
 def has_ext_in_list(fname, ext_list):
     for ext in ext_list:
@@ -130,19 +96,6 @@ def delete_cruft(fname):
         return
     else:
         return
-
-
-# some_cruft = "bar.s#1"
-# some_cam = "foo.TCRM"
-
-# def check_has_ext(test_str, ext):
-#     print("{}: {}".format(test_str, has_ext(test_str, ext)))
-
-# check_has_ext(some_cruft, CRUFT_EXT[0])
-# check_has_ext(some_cam, "TCRM")
-# ugh, just spent too long tracking down a stupid bug.  .format(ext=ext) is what
-# I should have written, but what I had was .format(ext) in my definitin of
-# has_ext()
 
 while True:
     root_dir = input("Enter root directory of your EAGLE project\n(if left "
@@ -217,12 +170,9 @@ zf = zipfile.ZipFile(zf_name, "w")
 naming_convention_mismatch = []
 for element in os.listdir(root_dir):
     if element[0] not in IGNORE_PREFIXES:
-        # if os.path.isdir(element):
-        #     element += "\n  ^(is a directory)"
-        # print(element)
         if not os.path.isdir(element):
             delete_cruft(element)
-            if name_p.match(element) is None:
+            if name_p.match(element) is None and element not in IGNORE_FNAMES:
                 naming_convention_mismatch.append(element)
             if is_in_osh_zip(element):
                 zf.write(element)
@@ -238,9 +188,12 @@ zf.close()
 shutil.move(os.path.join(root_dir, zf_name), OSH_PARK_DIR)
 print("OSH Park-ready zip file successfully written.")
 
-print("The following files did not comply with the naming convention:\n"
-      "(if you want to know more, ask Tom or Matlock)")
-for entry in naming_convention_mismatch:
-    print("  " + entry)
-
+if naming_convention_mismatch:
+    print("The following files did not comply with the naming convention:\n"
+          "(if you want to know more, ask Tom or Matlock)")
+    for entry in naming_convention_mismatch:
+        print("  " + entry)
+else:
+    print("All file names followed naming convention or were known "
+          "exceptions. Cool!")
 print("Program successfully terminated.")
