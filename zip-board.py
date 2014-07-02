@@ -52,6 +52,11 @@ IGNORE_FNAMES = ["eagle.epf", # EAGLE project config file
                  "\.[^.]+", # hidden files (e.g. .DS_Store in Mac OS X
                  "#.+", # Emacs cruft
                  "^~.*~$", # more Emacs cruft
+                 "top.png", # board top OSH Park rendering
+                 "bottom.png", # board bottom OSH Park rendering
+                 "^README.*", # any README files?
+                 "^.*CONNECTIONS.*$", # specifies connections
+                 "^.*BOM.*$", # bill of materials file
                  ]
 
 def has_ext(fname, ext):
