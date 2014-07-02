@@ -20,16 +20,6 @@ import zipfile
 
 # matches pattern "ME-XXXXX-XL" where X is a number and L is a letter
 name_p = re.compile("ME-(\d){5,}-\d+[A-Z]+")
-
-# if name_p.match("ME-00001-1A") is not None and\
-#   name_p.match("ME-0000X-1C") is None:
-#     print("yippee!")
-# else:
-#     print("ohno!")
-
-# ignorable file prefixes
-IGNORE_PREFIXES = [".",
-                 "#",]
     
 # delete files with these extensions -- you don't need them
 CRUFT_EXT = ["s#\d", # schematic auto save files
@@ -56,9 +46,12 @@ MISC_CAM_EXT = ["dri", # drill file verification
 CAM_EXT = OSH_PARK_EXT + STENCIL_EXT + MISC_CAM_EXT
 CAM_EXT.sort()
 
-# files that don't follow the naming convention
+# files (and regexes for file names) that don't follow the naming convention
 IGNORE_FNAMES = ["eagle.epf", # EAGLE project config file
-                 "Icon", # icon file that seems to be part of Google Drive
+                 ".*Icon.*", # icon file that seems to be part of Google Drive
+                 "\.[^.]+", # hidden files (e.g. .DS_Store in Mac OS X
+                 "#.+", # Emacs cruft
+                 "^~.*~$", # more Emacs cruft
                  ]
 
 def has_ext(fname, ext):
@@ -96,6 +89,14 @@ def delete_cruft(fname):
         return
     else:
         return
+
+# this allows for regexes in IGNORE_FNAMES instead of plain string file names
+def is_ignorable(fname):
+    for entry in IGNORE_FNAMES:
+        p = re.compile("{}".format(entry))
+        if p.match(fname) is not None:
+            return True
+    return False
 
 while True:
     root_dir = input("Enter root directory of your EAGLE project\n(if left "
@@ -169,10 +170,10 @@ zf = zipfile.ZipFile(zf_name, "w")
             
 naming_convention_mismatch = []
 for element in os.listdir(root_dir):
-    if element[0] not in IGNORE_PREFIXES:
+    if not is_ignorable(element):
         if not os.path.isdir(element):
             delete_cruft(element)
-            if name_p.match(element) is None and element not in IGNORE_FNAMES:
+            if name_p.match(element) is None:
                 naming_convention_mismatch.append(element)
             if is_in_osh_zip(element):
                 zf.write(element)
