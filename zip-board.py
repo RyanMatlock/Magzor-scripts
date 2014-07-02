@@ -98,6 +98,7 @@ def is_ignorable(fname):
             return True
     return False
 
+warnings = []
 while True:
     root_dir = input("Enter root directory of your EAGLE project\n(if left "
                      "blank, {cwd} will be used):\n".format(cwd=os.getcwd()))
@@ -167,7 +168,7 @@ while True:
         break
     
 zf = zipfile.ZipFile(zf_name, "w")
-            
+files_written_to_zf = []            
 naming_convention_mismatch = []
 for element in os.listdir(root_dir):
     if not is_ignorable(element):
@@ -177,6 +178,7 @@ for element in os.listdir(root_dir):
                 naming_convention_mismatch.append(element)
             if is_in_osh_zip(element):
                 zf.write(element)
+                files_written_to_zf.append(element)
                 shutil.move(os.path.join(root_dir, element), OSH_PARK_DIR)
             elif is_stencil(element):
                 shutil.move(os.path.join(root_dir, element), STENCIL_DIR)
@@ -187,7 +189,17 @@ for element in os.listdir(root_dir):
 
 zf.close()
 shutil.move(os.path.join(root_dir, zf_name), OSH_PARK_DIR)
-print("OSH Park-ready zip file successfully written.")
+
+if files_written_to_zf:
+    print("The following files were successfully written to\n"
+          "{zf}:".format(zf=os.path.join(OSH_PARK_DIR, zf_name)))
+    for fname in files_written_to_zf:
+        print("  " + fname)
+else:
+    os.remove(os.path.join(OSH_PARK_DIR, zf_name))
+    warnings.append("Zip file not written because Gerber/Excellon files were "
+                    "not found.\n     Did you forget to run the CAM "
+                    "processor?")
 
 if naming_convention_mismatch:
     print("The following files did not comply with the naming convention:\n"
@@ -197,4 +209,9 @@ if naming_convention_mismatch:
 else:
     print("All file names followed naming convention or were known "
           "exceptions. Cool!")
-print("Program successfully terminated.")
+if warnings:
+    print("Program exited with the following warnings:")
+    for warning in warnings:
+        print("  !! " + warning)
+else:
+    print("Program successfully terminated.")
