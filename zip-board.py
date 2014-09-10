@@ -2,10 +2,10 @@
 """
 zip-board.py
 
-Point it at an EAGLE project folder on which you've just run the CAM processor*,
-and zip-board.py will take care of generating the ./CAM folder, putting the
-Gerber/Excellon files into there, and zipping them up.  It also makes sure
-everything is named properly.
+Point it at an EAGLE project folder on which you've just run the CAM
+processor*, and zip-board.py will take care of generating the ./CAM folder,
+putting the Gerber/Excellon files into there, and zipping them up.  It also
+makes sure everything is named properly.
 
 * magzor.cam
 
@@ -20,45 +20,47 @@ import zipfile
 
 # matches pattern "ME-XXXXX-XL" where X is a number and L is a letter
 name_p = re.compile("ME-(\d){5,}-\d+[A-Z]+")
-    
+
 # delete files with these extensions -- you don't need them
-CRUFT_EXT = ["s#\d", # schematic auto save files
-              "b#\d", # board auto save files
-              ]
+CRUFT_EXT = ["s#\d",  # schematic auto save files
+             "b#\d",  # board auto save files
+             ]
 
 # Gerber/Excellon file extensions for OSH Park and stencil making
-OSH_PARK_EXT = ["GBL", # bottom layer
-                "GBO", # bottom silkscreen
-                "GBS", # bottom soldermask
-                "GKO", # dimension
-                "GTL", # top layer
-                "GTO", # top silkscreen
-                "GTS", # top soldermask
-                "XLN", # Excellon drill file
+OSH_PARK_EXT = ["GBL",  # bottom layer
+                "GBO",  # bottom silkscreen
+                "GBS",  # bottom soldermask
+                "GKO",  # dimension
+                "GTL",  # top layer
+                "GTO",  # top silkscreen
+                "GTS",  # top soldermask
+                "XLN",  # Excellon drill file
                 ]
 
-STENCIL_EXT = ["TCRM", # top cream layer
-               "BCRM", # bottom cream layer
+STENCIL_EXT = ["TCRM",  # top cream layer
+               "BCRM",  # bottom cream layer
+               "INS",  # insulation layer
                ]
-MISC_CAM_EXT = ["dri", # drill file verification
-                "gpi", # Gerber file verification?
+MISC_CAM_EXT = ["dri",  # drill file verification
+                "gpi",  # Gerber file verification?
                 ]
 CAM_EXT = OSH_PARK_EXT + STENCIL_EXT + MISC_CAM_EXT
 CAM_EXT.sort()
 
 # files (and regexes for file names) that don't follow the naming convention
-IGNORE_FNAMES = ["eagle.epf", # EAGLE project config file
-                 ".*Icon.*", # icon file that seems to be part of Google Drive
-                 "\.[^.]+", # hidden files (e.g. .DS_Store in Mac OS X
-                 "#.+", # Emacs cruft
-                 "^~.*~$", # more Emacs cruft
-                 "top.png", # board top OSH Park rendering
-                 "bottom.png", # board bottom OSH Park rendering
-                 "^README.*", # any README files?
-                 "^.*CONNECTIONS.*$", # specifies connections
-                 "^.*BOM.*$", # bill of materials file
+IGNORE_FNAMES = ["eagle.epf",  # EAGLE project config file
+                 ".*Icon.*",  # icon file that seems to be part of Google Drive
+                 "\.[^.]+",  # hidden files (e.g. .DS_Store in Mac OS X
+                 "#.+",  # Emacs cruft
+                 "^~.*~$",  # more Emacs cruft
+                 "top.png",  # board top OSH Park rendering
+                 "bottom.png",  # board bottom OSH Park rendering
+                 "^README.*",  # any README files?
+                 "^.*CONNECTIONS.*$",  # specifies connections
+                 "^.*BOM.*$",  # bill of materials file
                  ]
 
+    
 def has_ext(fname, ext):
     """
     better implementation than endswith() because I can pass in regexs for ext
@@ -69,24 +71,30 @@ def has_ext(fname, ext):
         return True
     return False
 
+
 def has_ext_in_list(fname, ext_list):
     for ext in ext_list:
         if has_ext(fname, ext):
             return True
     return False
 
+
 # these next few aren't great, but it's better
 def is_cruft(fname):
     return has_ext_in_list(fname, CRUFT_EXT)
 
+
 def is_cam(fname):
     return has_ext_in_list(fname, CAM_EXT)
+
 
 def is_stencil(fname):
     return has_ext_in_list(fname, STENCIL_EXT)
 
+
 def is_in_osh_zip(fname):
     return has_ext_in_list(fname, OSH_PARK_EXT)
+
 
 def delete_cruft(fname):
     if is_cruft(fname):
@@ -94,6 +102,7 @@ def delete_cruft(fname):
         return
     else:
         return
+
 
 # this allows for regexes in IGNORE_FNAMES instead of plain string file names
 def is_ignorable(fname):
@@ -147,7 +156,7 @@ if not os.path.isdir(CAM_DIR):
     os.makedirs(STENCIL_DIR)
     os.makedirs(OSH_PARK_DIR)
     print("./CAM directories successfully created.")
-elif not os.path.isdir(STENCIL_DIR):            
+elif not os.path.isdir(STENCIL_DIR):
     os.makedirs(STENCIL_DIR)
     print("./CAM/Stencil directory successfully created.")
 elif not os.path.isdir(OSH_PARK_DIR):
@@ -171,7 +180,7 @@ while True:
             exit()
     else:
         break
-    
+
 zf = zipfile.ZipFile(zf_name, "w")
 files_written_to_zf = []            
 naming_convention_mismatch = []
