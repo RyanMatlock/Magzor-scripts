@@ -1,8 +1,0 @@
-line 19: 'static uint16_t crc_table [256] = \n'
-line 19: 'static uint16_t crc_table [256] = \n{\n'
-line 73: '    for (int i = 0; i < 128; i++) \n'
-line 73: '    for (int i = 0; i < 128; i++) \n    {\n'
-line 128: '\n'
-line 128: '\n{ \n'
-line 134: '\n'
-line 134: '\n{\n'

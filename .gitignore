@@ -8,3 +8,6 @@
 
 # Python cruft
 *.pyc
+
+# the ignore folder
+ignore
