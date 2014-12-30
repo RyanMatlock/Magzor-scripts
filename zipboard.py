@@ -1,9 +1,9 @@
 #!/usr/local/bin/python3
 """
-zip-board.py
+zipboard.py
 
 Point it at an EAGLE project folder on which you've just run the CAM
-processor*, and zip-board.py will take care of generating the ./CAM folder,
+processor*, and zipboard.py will take care of generating the ./CAM folder,
 putting the Gerber/Excellon files into there, and zipping them up.  It also
 makes sure everything is named properly.
 
